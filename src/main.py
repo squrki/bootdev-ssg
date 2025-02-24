@@ -1,12 +1,13 @@
 from textnode import *
 from htmlnode import HTMLNode
 from leafnode import LeafNode
+import re
 
 print("hello world")
 
 def text_node_to_html_node(text_node):
     match text_node.text_type:
-        case TextType.NORMAL:
+        case TextType.TEXT:
             return LeafNode(None, text_node.text)
         case TextType.BOLD:
             return LeafNode("b", text_node.text)
@@ -24,12 +25,24 @@ def text_node_to_html_node(text_node):
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     nodes = []
     for o in old_nodes:
-        start = o.text.find(delimiter)
-        end = o.text[start+1:].find(delimiter)
-        nodes.append(TextNode(o.text[:start]), TextType.TEXT)
-        nodes.append(TextNode(o.text[start+1:end]), text_type)
-        nodes.append(TextNode(o.text[end+1:]), TextType.TEXT)
+        if o.text_type != TextType.TEXT:
+            nodes.append(o)
+            continue
+        text_list = o.text.split(delimiter)
+        if len(text_list) < 3:
+            raise Exception("invalid Markdown syntax")
+        nodes.append(TextNode(text_list[0]), TextType.TEXT)
+        nodes.append(TextNode(text_list[1]), text_type)
+        nodes.append(TextNode(text_list[2]), TextType.TEXT)
     return nodes
+
+def extract_markdown_images(text):
+    alt_texts = re.findall(r"\[(.*?)\]", text)
+    urls = re.findall(r"\((.*?)\)", text)
+    pairs = []
+    for i in range(len(urls)):
+        pairs.append((alt_texts[i], urls[i]))
+    return pairs
 
 def main():
     node = TextNode("This is a text node", TextType.BOLD, "https://www.boot.dev")
