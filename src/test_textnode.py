@@ -29,6 +29,5 @@ class TestTextNode(unittest.TestCase):
         self.assertEqual(node.url, node2.url)
     
 
-
 if __name__ == "__main__":
     unittest.main()
