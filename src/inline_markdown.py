@@ -9,11 +9,15 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
             nodes.append(o)
             continue
         text_list = o.text.split(delimiter)
-        if len(text_list) < 3:
+        if len(text_list) % 2 == 0:
             raise Exception("invalid Markdown syntax")
-        nodes.append(TextNode(text_list[0]), TextType.TEXT)
-        nodes.append(TextNode(text_list[1]), text_type)
-        nodes.append(TextNode(text_list[2]), TextType.TEXT)
+        for i in range(len(text_list)):
+            if text_list[i] == "":
+                continue
+            if i % 2 == 0:
+                nodes.append(TextNode(text_list[i], TextType.TEXT))
+            else:
+                nodes.append(TextNode(text_list[1], text_type))
     return nodes
 
 def extract_markdown_images(text):
